@@ -29,10 +29,10 @@ The model has been fed with tensors with a shape of 32 by 32 pixels by 3 channel
 ### Structure of the svhn.py file
 
 A single file called ‘svhn.py’ has been created containing the following methods:
--	test(test_image) -> To test individual images.
--	traintest() -> To trigger the training and testing of the model. It returns the avg F1 score.
--	load_pre_trained_model() -> Used for testing individual images.
 -	load_train_data & load_test_data -> To download and load train and test datasets, respectively.
+-	traintest() -> To trigger the training and testing of the model. It returns the avg F1 score.
+-	load_pre_trained_model() -> Used for testing individual images. A pre-trained model is loaded in advance in order to quickly return individual predictions when required.
+-	test(test_image) -> To test individual images.
 
 ## To Run
 You can use the jupyter notebook harness file included or import the svhn class and use the following main functions:
