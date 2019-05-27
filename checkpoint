@@ -1,0 +1,2 @@
+model_checkpoint_path: "C:\\Users\\v-emvi\\Documents\\JupyterNotebooksWorkingDir\\Assignment\\SVHN Folder\\svhn_model_ev.tfl"
+all_model_checkpoint_paths: "C:\\Users\\v-emvi\\Documents\\JupyterNotebooksWorkingDir\\Assignment\\SVHN Folder\\svhn_model_ev.tfl"
