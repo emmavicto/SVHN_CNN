@@ -42,6 +42,4 @@ Which takes the name of a JPEG or PNG file with a shape of 32-by-32 pixels and r
 house number seen in the supplied image.
 
 - traintest()
-This function when called should (a) download the training and test data, (b) train the
-model from scratch; and (c) perform analysis against test data. The final output of this
-function should be a production of average F1 scores across each class in your testset.
+This function when called should (a) download the training and test data, (b) train the model from scratch; and (c) perform analysis against test data. The final output of this function is a production of average F1 scores across each class in the testset.
