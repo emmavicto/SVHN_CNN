@@ -9,15 +9,53 @@ from scipy import io as sio
 import os.path
 import urllib.request					  
 from cv2 import cv2
+import tensorflow as tf
 
-def test(test_image):
-    model = load_pre_trained_model()
-    converted_image = cv2.imread(test_image)
-    prediction = model.predict([converted_image])
+def load_train_data():
 
-    digit = np.argmax(prediction)
+    if not  os.path.isfile("train_32x32.mat"):
+        with urllib.request.urlopen("http://ufldl.stanford.edu/housenumbers/train_32x32.mat") as response_train , open("train_32x32.mat", 'wb') as train_out_file:
+            train_data = response_train.read() 
+            train_out_file.write(train_data)
+    
+    train_dict = sio.loadmat("train_32x32.mat")
+    X = np.asarray(train_dict['X'])
 
-    return digit
+    X_train = []
+    for i in range(X.shape[3]):
+        X_train.append(X[:,:,:,i])
+    X_train = np.asarray(X_train)
+
+    Y_train = train_dict['y']
+    for i in range(len(Y_train)):
+        if Y_train[i]%10 == 0:
+            Y_train[i] = 0
+    Y_train = to_categorical(Y_train[:, 0],10)
+    
+    return (X_train,Y_train)
+
+def load_test_data():
+
+    if not os.path.isfile("test_32x32.mat"):
+        with urllib.request.urlopen("http://ufldl.stanford.edu/housenumbers/test_32x32.mat") as response_test, open("test_32x32.mat", 'wb') as test_out_file:
+            test_data = response_test.read() 
+            test_out_file.write(test_data)
+    
+    test_dict = sio.loadmat("test_32x32.mat")
+    X = np.asarray(test_dict['X'])
+
+    X_test = []
+    for i in range(X.shape[3]):
+        X_test.append(X[:,:,:,i])
+    X_test = np.asarray(X_test)
+
+    Y_test = test_dict['y']
+    for i in range(len(Y_test)):
+        if Y_test[i]%10 == 0:
+            Y_test[i] = 0
+    Y_test = to_categorical(Y_test[:, 0],10)
+    
+    return (X_test,Y_test)
 
 def traintest():
     X_train, Y_train = load_train_data()
@@ -84,6 +122,9 @@ def traintest():
     return correct_predict / total_samples
 
 def load_pre_trained_model():
+    if not os.path.isfile("svhn_model_ev.tfl.meta"):
+        traintest()
+
     network = input_data(shape=[None, 32, 32, 3])
 
     network = conv_2d(network, 16, 3, activation='relu', weights_init='xavier', name='CN1')
@@ -111,8 +152,8 @@ def load_pre_trained_model():
     network = fully_connected(network, 10, activation='softmax', weights_init='xavier', name='FC2')
 
     network = regression(network, optimizer='adam',
-                         loss='categorical_crossentropy',
-                         learning_rate=0.001)
+                        loss='categorical_crossentropy',
+                        learning_rate=0.001)
 
     model = tflearn.DNN(network, tensorboard_verbose=1)
 
@@ -120,51 +161,15 @@ def load_pre_trained_model():
 
     return model
 
-def load_train_data():
+MODEL_TRAINED= load_pre_trained_model()
 
-    if not  os.path.isfile("train_32x32.mat"):
-        with urllib.request.urlopen("http://ufldl.stanford.edu/housenumbers/train_32x32.mat") as response_train , open("train_32x32.mat", 'wb') as train_out_file:
-            train_data = response_train.read() 
-            train_out_file.write(train_data)
-    
-    train_dict = sio.loadmat("train_32x32.mat")
-    X = np.asarray(train_dict['X'])
+def test(test_image,model=MODEL_TRAINED):
 
-    X_train = []
-    for i in range(X.shape[3]):
-        X_train.append(X[:,:,:,i])
-    X_train = np.asarray(X_train)
+    converted_image = cv2.imread(test_image)
+    prediction = model.predict([converted_image])
+    digit = np.argmax(prediction)
+    return digit
 
-    Y_train = train_dict['y']
-    for i in range(len(Y_train)):
-        if Y_train[i]%10 == 0:
-            Y_train[i] = 0
-    Y_train = to_categorical(Y_train[:, 0],10)
-    
-    return (X_train,Y_train)
-
-def load_test_data():
-
-    if not os.path.isfile("test_32x32.mat"):
-        with urllib.request.urlopen("http://ufldl.stanford.edu/housenumbers/test_32x32.mat") as response_test, open("test_32x32.mat", 'wb') as test_out_file:
-            test_data = response_test.read() 
-            test_out_file.write(test_data)
-    
-    test_dict = sio.loadmat("test_32x32.mat")
-    X = np.asarray(test_dict['X'])
-
-    X_test = []
-    for i in range(X.shape[3]):
-        X_test.append(X[:,:,:,i])
-    X_test = np.asarray(X_test)
-
-    Y_test = test_dict['y']
-    for i in range(len(Y_test)):
-        if Y_test[i]%10 == 0:
-            Y_test[i] = 0
-    Y_test = to_categorical(Y_test[:, 0],10)
-    
-    return (X_test,Y_test)
     
 
 
